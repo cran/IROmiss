@@ -1,8 +1,13 @@
 EyeICRO <- function(x, y, rate = 0.05, alpha1 = 0.1, alpha2 = 0.1, iteration = 30, warm = 20)
 {
+  set.seed(1890)
   leng <- iteration - warm
   n <- dim(x)[1]
   p <- dim(x)[2]
+  cvfit <- cv.ncvreg(x, y, nfold=20)
+  fit <- cvfit$fit
+  beta_real <- as.numeric(fit$beta[,cvfit$min])
+  
   sec <- sample(1:length(x), size = rate * length(x))
   x[sec] <- NA
   miss <- which(is.na(x), arr.ind = TRUE)
@@ -15,9 +20,9 @@ EyeICRO <- function(x, y, rate = 0.05, alpha1 = 0.1, alpha2 = 0.1, iteration = 3
   beta_hat <- NULL
   for (iter in 1:iteration)
   {
-    GraRes <- equSAR(huge.npn(x_result), ALPHA1 = alpha1, ALPHA2 = alpha2)
+    GraRes <- equSAR(huge.npn(x_result, verbose = FALSE), ALPHA1 = alpha1, ALPHA2 = alpha2)
     A2 <- GraRes$Adj
-    cvfit <- cv.ncvreg(x_result, y)
+    cvfit <- cv.ncvreg(x_result, y, nfolds=20)
     fit <- cvfit$fit
     beta <- as.numeric(fit$beta[, cvfit$min])
     beta_hat <- cbind(beta_hat, beta)
@@ -42,8 +47,13 @@ EyeICRO <- function(x, y, rate = 0.05, alpha1 = 0.1, alpha2 = 0.1, iteration = 3
   for (i in 1:p)
   {
     ave_order[i, ] <- c(i, length(which(ave_hat[i + 1, ] != 0)))
+    if(length(which(ave_hat[i + 1, ] != 0))<=(leng/2)) {
+      ave_hat[i + 1, ]=0
+    }
   }
   ave_rank <- ave_order[order(ave_order[, 2], decreasing = TRUE), 1]
-  topVar <- ave_rank
+  beta_ave <- apply(ave_hat[ave_rank+1,],1,mean)
+  topVar <- round(cbind(ave_rank,beta_ave,beta_real[ave_rank+1]),6)
+  colnames(topVar) <- c("aver_rank", "beta_aver", "beta_comp")
   return(topVar)
 }

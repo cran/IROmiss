@@ -4,7 +4,7 @@
 #include <time.h>
 #include <R.h>
 #include <Rmath.h>
- 
+
 #define pi 3.14159265
 
 /* nrutil.c */
@@ -1930,23 +1930,21 @@ int n;
 
 
 
-void podm0(double DataX[], int *total, int *data_num, int *iter_num, int *warm)
+void podm0(int *I, int *J, double DataX[], int *total, int *data_num, int *iter_num, int *warm)
 {
-// int stime;
-// long ltime;
-FILE *ins;
-int i, j, k, l, m, iter, start;
-static int dim_x=4, dim_z=5, dim_w=7;
-double un, s1,s2,s3, ss, *res,*mu_beta, **Sigma_beta, **Inv_Sigma_beta;
-double rho_lam, **R_lam, rho_gam, **R_gam, prior_a, prior_b;
-double *avebeta, *beta, **lambda, **gamma, avesig, sigmasq, **Lam, **Gam, **Inv_Sigma_lam, *data_y, **data_x, **data_z, **data_w;
-double **temp, **P_Sigma_beta, *tvec, *tvec2, **P_Sigma_lam, **Inv_Sigma_gam, **P_Sigma_gam;
-#define I   100       /* the number of subjects */
-#define J    10      /* the number of products */
-
+  // int stime;
+  // long ltime;
+  FILE *ins;
+  int i, j, k, l, m, iter, start;
+  static int dim_x=4, dim_z=5, dim_w=7;
+  double un, s1,s2,s3, ss, *res,*mu_beta, **Sigma_beta, **Inv_Sigma_beta;
+  double rho_lam, **R_lam, rho_gam, **R_gam, prior_a, prior_b;
+  double *avebeta, *beta, **lambda, **gamma, avesig, sigmasq, **Lam, **Gam, **Inv_Sigma_lam, *data_y, **data_x, **data_z, **data_w;
+  double **temp, **P_Sigma_beta, *tvec, *tvec2, **P_Sigma_lam, **Inv_Sigma_gam, **P_Sigma_gam;
+  
   data_x=dmatrix(1,*data_num,1,dim_x);
-  data_z=dmatrix(1,I,1,dim_z);
-  data_w=dmatrix(1,J,1,dim_w);
+  data_z=dmatrix(1,(*I),1,dim_z);
+  data_w=dmatrix(1,(*J),1,dim_w);
   data_y=dvector(1,*data_num);
   res=dvector(1,*data_num);
   mu_beta=dvector(1,dim_x);
@@ -1956,8 +1954,8 @@ double **temp, **P_Sigma_beta, *tvec, *tvec2, **P_Sigma_lam, **Inv_Sigma_gam, **
   R_gam=dmatrix(1,dim_w,1,dim_w);
   beta=dvector(1,dim_x);
   avebeta=dvector(1,dim_x);
-  lambda=dmatrix(1,I,1,dim_z);
-  gamma=dmatrix(1,J,1,dim_w);
+  lambda=dmatrix(1,(*I),1,dim_z);
+  gamma=dmatrix(1,(*J),1,dim_w);
   Lam=dmatrix(1,dim_z,1,dim_z);
   Inv_Sigma_lam=dmatrix(1,dim_z,1,dim_z);
   P_Sigma_lam=dmatrix(1,dim_z,1,dim_z);
@@ -1968,12 +1966,12 @@ double **temp, **P_Sigma_beta, *tvec, *tvec2, **P_Sigma_lam, **Inv_Sigma_gam, **
   tvec2=dvector(1,(dim_x+dim_z+dim_w));
   Inv_Sigma_gam=dmatrix(1,dim_w,1,dim_w);
   P_Sigma_gam=dmatrix(1,dim_w,1,dim_w);
-
+  
   GetRNGstate();
-
-/* read the data form file: raw.dat */
-// ins=fopen("sim0.dat", "r");
-start=0;
+  
+  /* read the data form file: raw.dat */
+  // ins=fopen("sim0.dat", "r");
+  start=0;
   
   for(l=0, k=1; k<=*data_num; k++){
     
@@ -1981,269 +1979,274 @@ start=0;
     
     for(i=1; i<=dim_x; i++) data_x[k][i]=DataX[start++];
     
-    if(k%J==0){  
+    if(k%(*J)==0){  
       l++;  
       for(i=1; i<=dim_z; i++) data_z[l][i]=DataX[start++];    
     }
     else{ for(i=1; i<=dim_z; i++) un=DataX[start++]; }
     
-    if(k<=J){
+    if(k<=(*J)){
       for(i=1; i<=dim_w; i++) data_w[k][i]=DataX[start++];
     }
     else{ for(i=1; i<=dim_w; i++) un=DataX[start++]; }
   }
-
-
-
-if(start==*total) Rprintf("reading data done\n");
-
-for(i=1; i<=dim_x; i++){ 
-     mu_beta[i]=0.0;
-     for(j=1; j<=dim_x; j++) Sigma_beta[i][j]=0.0;
-    }
-
-for(i=1; i<=dim_x; i++) Sigma_beta[i][i]+=100.0;
-
-
-matrix_inverse(Sigma_beta, Inv_Sigma_beta, dim_x);
-
-
-rho_lam=0.01; 
-for(i=1; i<=dim_z; i++){
-     for(j=1; j<=dim_z; j++) R_lam[i][j]=0.0;
-    }
-
-
-for(i=1; i<=dim_z; i++) R_lam[i][i]+=0.01;
-
-
-rho_gam=0.01;   
-for(i=1; i<=dim_w; i++){
-     for(j=1; j<=dim_w; j++) R_gam[i][j]=0.0;
-    }
-
-for(i=1; i<=dim_w; i++) R_gam[i][i]+=0.01;
-
-prior_a=0.05; prior_b=0.05;
-
-Rprintf("Initializing \n");
-
-/******************* initial values ***********************/
-for(i=1; i<=dim_x; i++){
-  beta[i]=gasdev();
-} 
-
-
-for(i=1; i<=I; i++) 
-   for(k=1; k<=dim_z; k++) lambda[i][k]=gasdev();
-
-for(j=1; j<=J; j++) 
-   for(k=1; k<=dim_w; k++) gamma[j][k]=gasdev();
-sigmasq=unif_rand()*5.0;
-
-for(i=1; i<=dim_z; i++)
-  for(j=1; j<=dim_z; j++) Lam[i][j]=0.0; // unif_rand()*1.0-0.5;
-for(i=1; i<=dim_z; i++) Lam[i][i]=unif_rand()*4.0+1.0;
-
-for(i=1; i<=dim_w; i++)
-  for(j=1; j<=dim_w; j++) Gam[i][j]=0.0; // unif_rand()*1.0-0.5;
-for(i=1; i<=dim_w; i++) Gam[i][i]=unif_rand()*4.0+1.0;
-
-for(i=1; i<=dim_x; i++) avebeta[i]=0.0;
-avesig=0.0;
-/*******   iterations       *******************************/
-
-Rprintf("starting iterations\n");
-
-ins=fopen("aa00.path","w");
-for(iter=1; iter<=*warm+*iter_num; iter++){
+  
+  
+  
+  if(start==*total) Rprintf("reading data done\n");
+  
+  for(i=1; i<=dim_x; i++){ 
+    mu_beta[i]=0.0;
+    for(j=1; j<=dim_x; j++) Sigma_beta[i][j]=0.0;
+  }
+  
+  for(i=1; i<=dim_x; i++) Sigma_beta[i][i]+=100.0;
+  
+  
+  matrix_inverse(Sigma_beta, Inv_Sigma_beta, dim_x);
+  
+  
+  rho_lam=0.01; 
+  for(i=1; i<=dim_z; i++){
+    for(j=1; j<=dim_z; j++) R_lam[i][j]=0.0;
+  }
+  
+  
+  for(i=1; i<=dim_z; i++) R_lam[i][i]+=0.01;
+  
+  
+  rho_gam=0.01;   
+  for(i=1; i<=dim_w; i++){
+    for(j=1; j<=dim_w; j++) R_gam[i][j]=0.0;
+  }
+  
+  for(i=1; i<=dim_w; i++) R_gam[i][i]+=0.01;
+  
+  prior_a=0.05; prior_b=0.05;
+  
+  Rprintf("Initializing \n");
+  
+  /******************* initial values ***********************/
+  for(i=1; i<=dim_x; i++){
+    beta[i]=gasdev();
+  } 
+  
+  
+  for(i=1; i<=(*I); i++) 
+    for(k=1; k<=dim_z; k++) lambda[i][k]=gasdev();
+  
+  for(j=1; j<=(*J); j++) 
+    for(k=1; k<=dim_w; k++) gamma[j][k]=gasdev();
+  sigmasq=unif_rand()*5.0;
+  
+  for(i=1; i<=dim_z; i++)
+    for(j=1; j<=dim_z; j++) Lam[i][j]=0.0; // unif_rand()*1.0-0.5;
+  for(i=1; i<=dim_z; i++) Lam[i][i]=unif_rand()*4.0+1.0;
+  
+  for(i=1; i<=dim_w; i++)
+    for(j=1; j<=dim_w; j++) Gam[i][j]=0.0; // unif_rand()*1.0-0.5;
+  for(i=1; i<=dim_w; i++) Gam[i][i]=unif_rand()*4.0+1.0;
+  
+  for(i=1; i<=dim_x; i++) avebeta[i]=0.0;
+  avesig=0.0;
+  /*******   iterations       *******************************/
+  
+  Rprintf("starting iterations\n");
+  
+  ins=fopen("aa00.path","w");
+  for(iter=1; iter<=*warm+*iter_num; iter++){
     
- /**** part I for beta ******/
+    /**** part I for beta ******/
     for(i=1; i<=dim_x; i++) 
       for(j=1; j<=dim_x; j++){
-         temp[i][j]=0.0;
-         for(k=1; k<=*data_num; k++) temp[i][j]+=data_x[k][i]*data_x[k][j]; 
-        }
-   for(i=1; i<=dim_x; i++) 
-      for(j=1; j<=dim_x; j++) temp[i][j]=temp[i][j]/sigmasq+Inv_Sigma_beta[i][j];
-   matrix_inverse(temp, P_Sigma_beta, dim_x);
-
-   k=0;
-   for(i=1; i<=I; i++) 
-     for(j=1; j<=J; j++){
-         for(s1=0.0, l=1; l<=dim_z; l++) s1+=data_z[i][l]*lambda[i][l];
-         for(s2=0.0, l=1; l<=dim_w; l++) s2+=data_w[j][l]*gamma[j][l];
-          
-         k++;
-         res[k]=data_y[k]-s1-s2;
-       }
-   matrix_vector_prod(Inv_Sigma_beta,mu_beta,tvec,dim_x,dim_x);
-  
-   for(i=1; i<=dim_x; i++){
-       tvec2[i]=0.0;
-       for(k=1; k<=*data_num; k++) tvec2[i]+=data_x[k][i]*res[k];
-       tvec2[i]/=sigmasq;
+        temp[i][j]=0.0;
+        for(k=1; k<=*data_num; k++) temp[i][j]+=data_x[k][i]*data_x[k][j]; 
       }
-   
-   for(i=1; i<=dim_x; i++) tvec[i]+=tvec2[i];
-   
-   matrix_vector_prod(P_Sigma_beta, tvec, tvec2, dim_x, dim_x);
-
-   // RMultiNorm(beta,tvec2,P_Sigma_beta,dim_x);
-   for(i=1; i<=dim_x; i++) beta[i]=tvec2[i];
-   if(iter>*warm){
-      for(i=1; i<=dim_x; i++) avebeta[i]+=beta[i]; }
-
-  if(iter>*warm && iter%1==0){
-     for(i=1; i<=dim_x; i++) fprintf(ins," %g", beta[i]);
-     // fprintf(ins,"\n");
+      for(i=1; i<=dim_x; i++) 
+        for(j=1; j<=dim_x; j++) temp[i][j]=temp[i][j]/sigmasq+Inv_Sigma_beta[i][j];
+    matrix_inverse(temp, P_Sigma_beta, dim_x);
+    
+    k=0;
+    for(i=1; i<=(*I); i++) 
+      for(j=1; j<=(*J); j++){
+        for(s1=0.0, l=1; l<=dim_z; l++) s1+=data_z[i][l]*lambda[i][l];
+        for(s2=0.0, l=1; l<=dim_w; l++) s2+=data_w[j][l]*gamma[j][l];
+        
+        k++;
+        res[k]=data_y[k]-s1-s2;
+      }
+      matrix_vector_prod(Inv_Sigma_beta,mu_beta,tvec,dim_x,dim_x);
+    
+    for(i=1; i<=dim_x; i++){
+      tvec2[i]=0.0;
+      for(k=1; k<=*data_num; k++) tvec2[i]+=data_x[k][i]*res[k];
+      tvec2[i]/=sigmasq;
     }
-
- /**** part II for lambda  ******/ 
-  matrix_inverse(Lam, Inv_Sigma_lam, dim_z);
-
-  k=0;
-  for(i=1; i<=I; i++)
-     for(j=1; j<=J; j++){
-         k++;
-         for(s1=0.0, l=1; l<=dim_x; l++) s1+=data_x[k][l]*beta[l];
-         for(s2=0.0, l=1; l<=dim_w; l++) s2+=data_w[j][l]*gamma[j][l];
-         res[k]=data_y[k]-s1-s2;
-       }
-
-
-  for(m=1; m<=I; m++){
-   
-    for(i=1; i<=dim_z; i++)
-      for(j=1; j<=dim_z; j++){
-         temp[i][j]=J*data_z[m][i]*data_z[m][j]; 
-        }
-    for(i=1; i<=dim_z; i++)
-      for(j=1; j<=dim_z; j++) temp[i][j]=temp[i][j]/sigmasq+Inv_Sigma_lam[i][j];
-  
-    matrix_inverse(temp, P_Sigma_lam, dim_z); 
-
-    for(i=1; i<=dim_z; i++){
-       tvec2[i]=0.0;
-       for(k=1; k<=J; k++) tvec2[i]+=data_z[m][i]*res[(m-1)*J+k]; 
-       tvec2[i]/=sigmasq;
+    
+    for(i=1; i<=dim_x; i++) tvec[i]+=tvec2[i];
+    
+    matrix_vector_prod(P_Sigma_beta, tvec, tvec2, dim_x, dim_x);
+    
+    // RMultiNorm(beta,tvec2,P_Sigma_beta,dim_x);
+    for(i=1; i<=dim_x; i++) beta[i]=tvec2[i];
+    if(iter>*warm){
+      for(i=1; i<=dim_x; i++) avebeta[i]+=beta[i]; }
+    
+    if(iter>*warm && iter%1==0){
+      for(i=1; i<=dim_x; i++) fprintf(ins," %g", beta[i]);
+      // fprintf(ins,"\n");
+    }
+    
+    /**** part II for lambda  ******/ 
+    matrix_inverse(Lam, Inv_Sigma_lam, dim_z);
+    
+    k=0;
+    for(i=1; i<=(*I); i++)
+      for(j=1; j<=(*J); j++){
+        k++;
+        for(s1=0.0, l=1; l<=dim_x; l++) s1+=data_x[k][l]*beta[l];
+        for(s2=0.0, l=1; l<=dim_w; l++) s2+=data_w[j][l]*gamma[j][l];
+        res[k]=data_y[k]-s1-s2;
       }
-   
-   matrix_vector_prod(P_Sigma_lam, tvec2, tvec, dim_z, dim_z); 
-   
-   RMultiNorm(tvec2,tvec,P_Sigma_lam,dim_z);
-   for(i=1; i<=dim_z; i++) lambda[m][i]=tvec2[i]; 
-
-   // Rprintf("lambda[%d]\n",m);
-  }
-
-   
-  /****** part III for gamma   ******/
-  matrix_inverse(Gam, Inv_Sigma_gam, dim_w);
-
-  k=0;
-  for(i=1; i<=I; i++)
-     for(j=1; j<=J; j++){
-         k++;
-         for(s1=0.0, l=1; l<=dim_x; l++) s1+=data_x[k][l]*beta[l];
-         for(s2=0.0, l=1; l<=dim_z; l++) s2+=data_z[i][l]*lambda[i][l];
-         res[k]=data_y[k]-s1-s2;
-       }
-
-
-  for(m=1; m<=J; m++){
-
+      
+      
+      for(m=1; m<=(*I); m++){
+        
+        for(i=1; i<=dim_z; i++)
+          for(j=1; j<=dim_z; j++){
+            temp[i][j]=(*J)*data_z[m][i]*data_z[m][j]; 
+          }
+          for(i=1; i<=dim_z; i++)
+            for(j=1; j<=dim_z; j++) temp[i][j]=temp[i][j]/sigmasq+Inv_Sigma_lam[i][j];
+        
+        matrix_inverse(temp, P_Sigma_lam, dim_z); 
+        
+        for(i=1; i<=dim_z; i++){
+          tvec2[i]=0.0;
+          for(k=1; k<=(*J); k++) tvec2[i]+=data_z[m][i]*res[(m-1)*(*J)+k]; 
+          tvec2[i]/=sigmasq;
+        }
+        
+        matrix_vector_prod(P_Sigma_lam, tvec2, tvec, dim_z, dim_z); 
+        
+        RMultiNorm(tvec2,tvec,P_Sigma_lam,dim_z);
+        for(i=1; i<=dim_z; i++) lambda[m][i]=tvec2[i]; 
+        
+        // Rprintf("lambda[%d]\n",m);
+      }
+      
+      
+      /****** part III for gamma   ******/
+      matrix_inverse(Gam, Inv_Sigma_gam, dim_w);
+    
+    k=0;
+    for(i=1; i<=(*I); i++)
+      for(j=1; j<=(*J); j++){
+        k++;
+        for(s1=0.0, l=1; l<=dim_x; l++) s1+=data_x[k][l]*beta[l];
+        for(s2=0.0, l=1; l<=dim_z; l++) s2+=data_z[i][l]*lambda[i][l];
+        res[k]=data_y[k]-s1-s2;
+      }
+      
+      
+      for(m=1; m<=(*J); m++){
+        
+        for(i=1; i<=dim_w; i++)
+          for(j=1; j<=dim_w; j++){
+            temp[i][j]=(*I)*data_w[m][i]*data_w[m][j]; 
+          }
+          for(i=1; i<=dim_w; i++)
+            for(j=1; j<=dim_w; j++) temp[i][j]=temp[i][j]/sigmasq+Inv_Sigma_gam[i][j];
+        
+        matrix_inverse(temp, P_Sigma_gam, dim_w);
+        
+        for(i=1; i<=dim_w; i++){
+          tvec2[i]=0.0;
+          for(k=1; k<=(*I); k++) tvec2[i]+=data_w[m][i]*res[(k-1)*(*J)+m]; 
+          tvec2[i]/=sigmasq;
+        }
+        
+        matrix_vector_prod(P_Sigma_gam, tvec2, tvec, dim_w, dim_w);
+        
+        RMultiNorm(tvec2,tvec,P_Sigma_gam,dim_w);
+        for(i=1; i<=dim_w; i++) gamma[m][i]=tvec2[i]; 
+        
+        // Rprintf("gamma[%d]\n",m);
+        
+      }
+      
+      
+      /****** part IV for Lam  ******/
+      for(i=1; i<=dim_z; i++)
+        for(j=1; j<=dim_z; j++){
+          temp[i][j]=0.0;
+          for(k=1; k<=(*I); k++) temp[i][j]+=lambda[k][i]*lambda[k][j]; 
+        }
+        for(i=1; i<=dim_z; i++)
+          for(j=1; j<=dim_z; j++) temp[i][j]+=R_lam[i][j]; 
+    
+    // R_inverse_wishart(Lam,rho_lam+(*I),temp,dim_z);
+    
+    for(i=1; i<=dim_z; i++)
+      for(j=1; j<=dim_z; j++) Lam[i][j]=temp[i][j]/(rho_lam+(*I)+dim_z+1);
+    
+    // for(i=1; i<=dim_z; i++){
+    //   for(j=1; j<=dim_z; j++) Rprintf(" %g", Lam[i][j]);
+    //   Rprintf("\n");
+    //  }
+    // Rprintf("Lambda\n");
+    
+    /****** part V for Gam  ******/
     for(i=1; i<=dim_w; i++)
       for(j=1; j<=dim_w; j++){
-         temp[i][j]=I*data_w[m][i]*data_w[m][j]; 
-        }
-    for(i=1; i<=dim_w; i++)
-      for(j=1; j<=dim_w; j++) temp[i][j]=temp[i][j]/sigmasq+Inv_Sigma_gam[i][j];
-
-    matrix_inverse(temp, P_Sigma_gam, dim_w);
-
-    for(i=1; i<=dim_w; i++){
-       tvec2[i]=0.0;
-       for(k=1; k<=I; k++) tvec2[i]+=data_w[m][i]*res[(k-1)*J+m]; 
-       tvec2[i]/=sigmasq;
+        temp[i][j]=0.0;
+        for(k=1; k<=(*J); k++) temp[i][j]+=gamma[k][i]*gamma[k][j]; 
       }
-
-   matrix_vector_prod(P_Sigma_gam, tvec2, tvec, dim_w, dim_w);
-
-   RMultiNorm(tvec2,tvec,P_Sigma_gam,dim_w);
-   for(i=1; i<=dim_w; i++) gamma[m][i]=tvec2[i]; 
-
-   // Rprintf("gamma[%d]\n",m);
-   
-  }
-
-
-/****** part IV for Lam  ******/
-  for(i=1; i<=dim_z; i++)
-    for(j=1; j<=dim_z; j++){
-         temp[i][j]=0.0;
-         for(k=1; k<=I; k++) temp[i][j]+=lambda[k][i]*lambda[k][j]; 
-        }
-  for(i=1; i<=dim_z; i++)
-    for(j=1; j<=dim_z; j++) temp[i][j]+=R_lam[i][j]; 
-
-  // R_inverse_wishart(Lam,rho_lam+I,temp,dim_z);
-
-  for(i=1; i<=dim_z; i++)
-    for(j=1; j<=dim_z; j++) Lam[i][j]=temp[i][j]/(rho_lam+I+dim_z+1);
-
- // for(i=1; i<=dim_z; i++){
- //   for(j=1; j<=dim_z; j++) Rprintf(" %g", Lam[i][j]);
- //   Rprintf("\n");
- //  }
- // Rprintf("Lambda\n");
- 
- /****** part V for Gam  ******/
-  for(i=1; i<=dim_w; i++)
-    for(j=1; j<=dim_w; j++){
-         temp[i][j]=0.0;
-         for(k=1; k<=J; k++) temp[i][j]+=gamma[k][i]*gamma[k][j]; 
-        }
-  for(i=1; i<=dim_w; i++)
-    for(j=1; j<=dim_w; j++) temp[i][j]+=R_gam[i][j];
-
-  // R_inverse_wishart(Gam,rho_gam+J,temp,dim_w);
-
-  for(i=1; i<=dim_w; i++)
-    for(j=1; j<=dim_w; j++) Gam[i][j]=temp[i][j]/(rho_gam+J+dim_w+1);
-
- // for(i=1; i<=dim_w; i++){
- //   for(j=1; j<=dim_w; j++) Rprintf(" %g", Gam[i][j]);
- //   Rprintf("\n");
- //  }
- //  Rprintf("Gamma\n");
- 
-
- /**** part VI for sigmasq  *****/ 
-  k=0; ss=0.0;
-  for(i=1; i<=I; i++)
-     for(j=1; j<=J; j++){
-         k++;
-         for(s1=0.0, l=1; l<=dim_x; l++) s1+=data_x[k][l]*beta[l];
-         for(s2=0.0, l=1; l<=dim_z; l++) s2+=data_z[i][l]*lambda[i][l];
-         for(s3=0.0, l=1; l<=dim_w; l++) s3+=data_w[j][l]*gamma[j][l];
-         res[k]=data_y[k]-s1-s2-s3; 
-         ss+=res[k]*res[k];
-       }
-  sigmasq=(prior_b+0.5*ss)/(prior_a+0.5**data_num-1);
-  // sigmasq=R_inverse_gamma(prior_a+0.5**data_num, prior_b+0.5*ss);
-  if(iter>*warm) avesig+=sigmasq;
-
-  if(iter>*warm && iter%1==0) fprintf(ins, " %g\n", sigmasq);
-
- } /* end iteration  */
- fclose(ins);
-
- ins=fopen("aa00.out","a");
- for(i=1; i<=dim_x; i++) fprintf(ins, " %g", avebeta[i]/(*iter_num));
- fprintf(ins, " %g\n", avesig/(*iter_num));
- fclose(ins);
- 
- PutRNGstate();
-
+      for(i=1; i<=dim_w; i++)
+        for(j=1; j<=dim_w; j++) temp[i][j]+=R_gam[i][j];
+    
+    // R_inverse_wishart(Gam,rho_gam+(*J),temp,dim_w);
+    
+    for(i=1; i<=dim_w; i++)
+      for(j=1; j<=dim_w; j++) Gam[i][j]=temp[i][j]/(rho_gam+(*J)+dim_w+1);
+    
+    // for(i=1; i<=dim_w; i++){
+    //   for(j=1; j<=dim_w; j++) Rprintf(" %g", Gam[i][j]);
+    //   Rprintf("\n");
+    //  }
+    //  Rprintf("Gamma\n");
+    
+    
+    /**** part VI for sigmasq  *****/ 
+    k=0; ss=0.0;
+    for(i=1; i<=(*I); i++)
+      for(j=1; j<=(*J); j++){
+        k++;
+        for(s1=0.0, l=1; l<=dim_x; l++) s1+=data_x[k][l]*beta[l];
+        for(s2=0.0, l=1; l<=dim_z; l++) s2+=data_z[i][l]*lambda[i][l];
+        for(s3=0.0, l=1; l<=dim_w; l++) s3+=data_w[j][l]*gamma[j][l];
+        res[k]=data_y[k]-s1-s2-s3; 
+        ss+=res[k]*res[k];
+      }
+      sigmasq=(prior_b+0.5*ss)/(prior_a+0.5**data_num-1);
+    // sigmasq=R_inverse_gamma(prior_a+0.5**data_num, prior_b+0.5*ss);
+    if(iter>*warm) avesig+=sigmasq;
+    
+    if(iter>*warm && iter%1==0) fprintf(ins, " %g\n", sigmasq);
+    
+  } /* end iteration  */
+    fclose(ins);
+  
+  ins=fopen("aa00.out","a");
+  for(i=1; i<=dim_x; i++) fprintf(ins, " %g", avebeta[i]/(*iter_num));
+  fprintf(ins, " %g\n", avesig/(*iter_num));
+  fclose(ins);
+  
+  PutRNGstate();
+  
 }
+
+
+
+
+

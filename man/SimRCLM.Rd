@@ -1,23 +1,22 @@
-\name{RCLM}
-\alias{RCLM}
-\title{ Fit Random Coefficient Linear Models}
-\description{An extension of the ICRO algorithm for Bayesian Computation. It can be used to fit a Random Coefficient Linear Models and estimate the coefficients \eqn{\beta} and \eqn{\sigma^2}.}
+\name{SimRCLM}
+\alias{SimRCLM}
+\title{ Simulate Dataset for Random Coefficient Linear Models}
+\description{Simulate a dataset for random coefficient linear model, which can be used in \code{RCLM(I,J,RCDat,...)}.}
 
 \usage{
-RCLM(I=100, J=10, Data, iteration = 10000, warm = 100)
+SimRCLM(I=100, J=10, beta, sigma)
 }
 
 \arguments{
   \item{ I }{ Number of first subjects in the random coefficient linear model (RCLM).}
   \item{ J }{ Number of second subjects in the random coefficient linear model (RCLM).}
-  \item{ Data }{ A simulated dataset. The first column is the response and the rest is for explanatory variables, see \code{RCDat} for detail.}
-  \item{ iteration  }{ The number of total iterations, the default value is 10000.}
-\item{ warm  }{ The number of burn-in iterations, the default value is 100.}
+  \item{ beta }{ A 4x1 vector of random coefficients of the model, now only allows length 4.}
+  \item{ sigma  }{ The standard diviation for the noise term.}
 
 }
 
 \value{
-  \item{path}{The traces of estimated coefficients vs. iterations.}
+  \item{D}{A simulated data matrix for random coefficient models. The first column of the dataset denote the response \eqn{\mathbf{y}}. The dataset should be used in \code{RCLM(I,J,RCDat...)}.}
   \item{coef}{The mean of estimated coefficients \eqn{\mathbf{\beta}} and \eqn{\sigma^2}.}
 %% ...
 }
@@ -25,13 +24,22 @@ RCLM(I=100, J=10, Data, iteration = 10000, warm = 100)
 \author{ Bochao Jia\email{jbc409@ufl.edu} and Faming Liang}
 
 \examples{
+\dontshow{
+library(IROmiss)
+beta<-c(1,-1,3,-1.5)
+sigma <- 0.5
+D <- SimRCLM(I=75, J=15, beta, sigma)
+D
+RCLM(I=75, J=15, D, iteration = 100, warm = 10)
+}
 \donttest{
 library(IROmiss)
-data(RCDat)
-RCLM(I=100, J=10, RCDat, iteration = 10000, warm = 1000)
+beta<-c(1,2,1.5,1)
+sigma <- 0.5
+D <- SimRCLM(I=100, J=10, beta, sigma)
+RCLM(I=100, J=10, D, iteration = 10000, warm = 1000)
 }
 
-         
 }
 
 \references{

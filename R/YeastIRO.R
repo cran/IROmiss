@@ -1,5 +1,6 @@
 YeastIRO <- function(data, alpha1 = 0.05, alpha2 = 0.01, alpha3 = 0.01, iteration = 30, warm = 20)
 {
+  set.seed(4*2560)
   n <- dim(data)[1]
   p <- dim(data)[2]
   name <- colnames(data)
@@ -13,21 +14,26 @@ YeastIRO <- function(data, alpha1 = 0.05, alpha2 = 0.01, alpha3 = 0.01, iteratio
   U <- NULL
   for (j in 1:iteration)
   {
-    GraRes <- equSAR(data_result, ALPHA1 = alpha1, ALPHA2 = alpha2)
+    GraRes <- equSAR(data_result, ALPHA1 = alpha1, ALPHA2 = alpha2, GRID=3)
     U1 <- GraRes$score
     A2 <- GraRes$Adj
-    thresh <- n/log(n)
-    censor <- which(apply(A2, 1, sum) >= thresh)
-    for (k in censor)
-    {
-      score_sub <- U1[U1[, 1] == k | U1[, 2] == k, ]
-      score_ord <- score_sub[order(-score_sub[, 3]), ]
-      ind <- as.numeric(apply(score_ord[, 1:2], 1, function(x) ifelse(x[1] == k, x[2], x[1])))
-      A2[, k] <- 0
-      A2[k, ] <- 0
-      A2[ind[1:thresh], k] <- 1
-      A2[k, ind[1:thresh]] <- 1
-    }
+    # thresh <- n/log(n)
+    # if(any(apply(A2, 1, sum) >= thresh)){
+    #   censor <- which(apply(A2, 1, sum) >= thresh)
+    #   for (k in censor)
+    #   {
+    #     score_sub <- U1[U1[, 1] == k | U1[, 2] == k, ]
+    #     score_ord <- score_sub[order(-score_sub[, 3]), ]
+    #     ind <- as.numeric(apply(score_ord[, 1:2], 1, function(x) ifelse(x[1] == k, x[2], x[1])))
+    #     A2[, k] <- 0
+    #     A2[k, ] <- 0
+    #     A2[ind[1:thresh], k] <- 1
+    #     A2[k, ind[1:thresh]] <- 1
+    #   }
+    # }else{
+    #   next
+    # }
+    
     U <- cbind(U, U1[, 3])
     for (i in 1:length(miss[, 1]))
     {
@@ -39,7 +45,7 @@ YeastIRO <- function(data, alpha1 = 0.05, alpha2 = 0.01, alpha3 = 0.01, iteratio
         mu1 <- mean(data_result[, miss[i, 2]])
         mu2 <- apply(data_result[, dep, drop = FALSE], 2, mean)
         mu <- mu1 + cov[-1, 1] %*% solve(cov[-1, -1]) %*% t(data_result[miss[i, 1], dep, drop = FALSE] - mu2)
-        sigma <- cov[1, 1] - cov[-1, 1] %*% solve(cov[-1, -1]) %*% cov[1, -1]
+        sigma <- cov[1, 1] - cov[-1, 1] %*% solve(cov[-1, -1]) %*% t(cov[1, -1, drop=FALSE])
         data_result[miss[i, 1], miss[i, 2]] <- rnorm(1, mu, sqrt(sigma))
       }
       else
@@ -69,7 +75,7 @@ YeastIRO <- function(data, alpha1 = 0.05, alpha2 = 0.01, alpha3 = 0.01, iteratio
     s <- c(s, s0)
   }
   Us <- U[s, ]
-  qqqscore <- pcorselR(Us, ALPHA2 = alpha3)
+  qqqscore <- pcorselR(round(Us,6), ALPHA2 = alpha3, GRID=3)
   U <- psiscore
   U <- U[U[, 3] >= qqqscore, ]
   A <- matrix(rep(0, p * p), ncol = p)

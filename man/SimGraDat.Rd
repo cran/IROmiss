@@ -40,7 +40,7 @@ Liang, F., Song, Q. and Qiu, P. (2015). An Equivalent Measure of Partial Correla
 
 Liang, F. and Zhang, J. (2008) Estimating FDR under general dependence using stochastic approximation.  Biometrika,  95(4), 961-977.
 
-Liang, F., Jia, B., Xue, J., Li, Q., and Luo, Y. (2017). An Imputation Regularized Optimization Algorithm for High-Dimensional Missing Data Problems and Beyond. Submitted to Journal of the Royal Statistical Society Series B.
+Liang, F., Jia, B., Xue, J., Li, Q., and Luo, Y. (2018). An Imputation Regularized Optimization Algorithm for High-Dimensional Missing Data Problems and Beyond. Submitted to Journal of the Royal Statistical Society Series B.
 
 }
 

@@ -1,4 +1,4 @@
-RCLM <- function(Data, iteration = 10000, warm = 100)
+RCLM <- function(I=100, J=10, Data, iteration = 10000, warm = 100)
 {
   DataNum=length(Data[,1]);
   DataP=length(Data[1,]);
@@ -11,6 +11,8 @@ RCLM <- function(Data, iteration = 10000, warm = 100)
   }
   
   .C("podm0",
+     as.integer(I),
+     as.integer(J),
      as.numeric(DataX),
      as.integer(total),
      as.integer(DataNum),

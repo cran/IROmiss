@@ -16,8 +16,8 @@ Missing data are frequently encountered in high-dimensional data analysis, but t
 \tabular{rl}{
 Package: \tab IROmiss\cr
 Type: \tab Package\cr
-Version: \tab 1.0.0\cr
-Date: \tab 2018-01-16\cr
+Version: \tab 1.0.1\cr
+Date: \tab 2018-02-19\cr
 License: \tab GPL-2\cr
 }
 
@@ -34,7 +34,7 @@ Yeast cell example \code{YeastIRO(data,...)}.
 The second module is to apply the ICRO algorithm to variable selection for high-dimensional linear regression in presence of missing data. The simulation study covers both cases, the covariates are mutually independent and generally dependent, with the code \code{SimRegDat(n,p,...)}. The real data example is for Bardet-Biedl syndrome (Scheetz et al., 2006) with the dataset available in the R package \emph{flare}.
 \bold{}
 
-The third module is to apply the ICRO algorithm to random coefficient models, where the random coefficients are treated as missing data. A simulated dataset \code{data(RCDat)} is included in the package, which can be used in \code{RCLM(RCDat)}.
+The third module is to apply the ICRO algorithm to random coefficient linear models, where the random coefficients are treated as missing data. We can generate a dataset for the random coefficient linear models with \code{SimRCLM(I,J,...)} and a simulated dataset \code{data(RCDat)} is included in the package, which can be used in \code{RCLM(I,J,RCDat,...)} for estimate the random coefficents.
 
 }
 \author{
@@ -48,8 +48,8 @@ Liang, F., Song, Q. and Qiu, P. (2015). An Equivalent Measure of Partial Correla
 
 Liang, F. and Zhang, J. (2008) Estimating FDR under general dependence using stochastic approximation.  Biometrika,  95(4), 961-977.<doi:10.1093/biomet/asn036>
 
-Liang, F., Jia, B., Xue, J., Li, Q., and Luo, Y. (2017). An Imputation Regularized Optimization Algorithm for High-Dimensional Missing Data Problems and Beyond. Submitted to Journal of the Royal Statistical Society Series B.
-
+Liang, F., Jia, B., Xue, J., Li, Q., and Luo, Y. (2018). An Imputation Regularized Optimization Algorithm for High-Dimensional Missing Data Problems and Beyond. Submitted to Journal of the Royal Statistical Society Series B.
+<arXiv:1802.02251>
 
 Jia, B., Xu, S., Xiao, G., Lamba, V., Liang, F. (2017) Inference of Genetic Networks from Next Generation Sequencing Data. Biometrics.
 
@@ -58,14 +58,6 @@ Jia, B., Xu, S., Xiao, G., Lamba, V., Liang, F. (2017) Inference of Genetic Netw
 \keyword{ package }
 
 \examples{
-      \dontshow{
-library(IROmiss)
-p <- 50
-beta <- rep(0,p)
-beta[1:5] <- c(1, 2, -1.5, -2.5, 5)
-result <- SimRegDat(n = 100, p = 50, coef = beta, data.type = "indep", miss.type="MCAR", rate = 0.05)
-RegICRO(result$x, result$y, result$coef, type = "indep", iteration = 10, warm = 5)
-      }
     \donttest{
 library(IROmiss)
 p <- 200
@@ -76,3 +68,4 @@ miss.type="MCAR", rate = 0.05)
 RegICRO(result$x, result$y, result$coef, type = "indep", iteration = 30, warm = 20)
       }
 }
+

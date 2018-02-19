@@ -1,7 +1,8 @@
 useDynLib(IROmiss,.registration = TRUE)
 import(mvtnorm, equSA, huge, ncvreg)
+importFrom("stats", "rbinom", "rmultinom", "runif")
 importFrom("stats", "cov", "median", "na.omit", "pnorm", "qnorm", "rnorm", "sd")
-export(EyeICRO, GraphIRO, RegICRO, SimGraDat, SimRegDat, YeastIRO, RCLM)
+export(EyeICRO, GraphIRO, RegICRO, SimGraDat, SimRegDat, YeastIRO, SimRCLM, RCLM)
 
 
 

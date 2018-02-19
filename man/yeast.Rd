@@ -5,7 +5,7 @@
 \title{Example dataset for learning Gaussian Graphical Models by the IRO Algorithm} 
 
 \description{
-Genomic expression patterns in the yeast Saccharomyces cerevisiae responding to diverse environmental changes. The whole dataset consists of 173 samples collected under different environmental settings, and is available at http://genome-www.stanford.edu/yeast-stress/. It should be used in \code{YeastIRO(data,...)}.
+Genomic expression patterns in the yeast Saccharomyces cerevisiae responding to diverse environmental changes. The whole dataset consists of 173 samples collected under different environmental settings, and is available at http://www-genome.stanford.edu/yeast_stress/. It should be used in \code{YeastIRO(data,...)}.
 }
 \usage{data(yeast)}
 \format{

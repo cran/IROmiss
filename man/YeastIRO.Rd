@@ -27,21 +27,19 @@ YeastIRO(data, alpha1 = 0.05, alpha2 = 0.01, alpha3 = 0.01, iteration = 30, warm
 \author{ Bochao Jia\email{jbc409@ufl.edu} and Faming Liang}
 
 \examples{
-\dontshow{
-library(IROmiss)
-library(huge)
-data(yeast)
-huge.plot(diag(100))
-}
 \donttest{
+
 library(IROmiss)
 library(huge)
 data(yeast)
 ## long time ##
-A <- YeastIRO(yeast, alpha1 = 0.05, alpha2 = 0.01, alpha3 = 0.01, iteration = 20, warm = 10)
+A <- YeastIRO(yeast, alpha1 = 0.05, alpha2 = 0.01, alpha3 = 0.01, iteration = 30, warm = 20)
 ## plot gene regulatory network by our estimated adjacency matrix.
 huge.plot(A)
+
 }
+
+
 
          
 }
@@ -51,7 +49,7 @@ Liang, F., Song, Q. and Qiu, P. (2015). An Equivalent Measure of Partial Correla
 
 Liang, F. and Zhang, J. (2008) Estimating FDR under general dependence using stochastic approximation.  Biometrika,  95(4), 961-977.
 
-Liang, F., Jia, B., Xue, J., Li, Q., and Luo, Y. (2017). An Imputation Regularized Optimization Algorithm for High-Dimensional Missing Data Problems and Beyond. Submitted to Journal of the Royal Statistical Society Series B.
+Liang, F., Jia, B., Xue, J., Li, Q., and Luo, Y. (2018). An Imputation Regularized Optimization Algorithm for High-Dimensional Missing Data Problems and Beyond. Submitted to Journal of the Royal Statistical Society Series B.
 
 }
 

@@ -5,7 +5,7 @@
 \title{Example dataset for high-dimensional variable selection by the ICRO algorithm.} 
 
 \description{
-Gene expression data from the microarray experiments of mammalian-eye tissue samples of Scheetz et al. (2006). It should be used in \code{EyeICRO(x,y...)}.
+Normalized Gene expression data from the microarray experiments of mammalian-eye tissue samples of Scheetz et al. (2006). It should be used in \code{EyeICRO(x,y...)}.
 \describe{
   \item{ x }{ a \emph{n}x\emph{p} gene expression data.}
   \item{ y }{The expression level of gene TRIM32.}
