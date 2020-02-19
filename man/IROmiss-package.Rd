@@ -16,8 +16,8 @@ Missing data are frequently encountered in high-dimensional data analysis, but t
 \tabular{rl}{
 Package: \tab IROmiss\cr
 Type: \tab Package\cr
-Version: \tab 1.0.1\cr
-Date: \tab 2018-02-19\cr
+Version: \tab 1.0.2\cr
+Date: \tab 2020-02-19\cr
 License: \tab GPL-2\cr
 }
 
@@ -31,7 +31,7 @@ of missing data with a simulated dataset \code{SimGraDat(n,p,...)} and
 Yeast cell example \code{YeastIRO(data,...)}.
 \bold{}
 
-The second module is to apply the ICRO algorithm to variable selection for high-dimensional linear regression in presence of missing data. The simulation study covers both cases, the covariates are mutually independent and generally dependent, with the code \code{SimRegDat(n,p,...)}. The real data example is for Bardet-Biedl syndrome (Scheetz et al., 2006) with the dataset available in the R package \emph{flare}.
+The second module is to apply the ICRO algorithm to varisable selection for high-dimensional linear regression in presence of missing data. The simulation study covers both cases, the covariates are mutually independent and generally dependent, with the code \code{SimRegDat(n,p,...)}. The real data example is for Bardet-Biedl syndrome (Scheetz et al., 2006) with the dataset available in the R package \emph{flare}.
 \bold{}
 
 The third module is to apply the ICRO algorithm to random coefficient linear models, where the random coefficients are treated as missing data. We can generate a dataset for the random coefficient linear models with \code{SimRCLM(I,J,...)} and a simulated dataset \code{data(RCDat)} is included in the package, which can be used in \code{RCLM(I,J,RCDat,...)} for estimate the random coefficents.

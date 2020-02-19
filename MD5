@@ -1,6 +1,5 @@
-d597a50fbcc6cc6442bcb2ecc05dd32d *DESCRIPTION
-daad84a06429fd631068e9fe4f056ae4 *NAMESPACE
-f0b2fe539349ea1385c0a16e4e50ed9e *R/EyeICRO.R
+222c6e518d6c84427ebade707ea82078 *DESCRIPTION
+579d0c4c239cfee02ae4ccd0849c1d67 *NAMESPACE
 afd3dc05609889c6ad188c2f29f4c2c2 *R/GraphIRO.R
 aa8d4c2103fca6ab9549159f09c31f84 *R/RCLM.R
 47bb1c5ef88145c91646a4cd5d4ea74f *R/RegICRO.R
@@ -11,9 +10,8 @@ ec0b48e80c4c6d5df00055bfeb9d5633 *R/SimRegDat.R
 87bff42ce65e51b7de9beaa7a79bc72f *data/RCDat.rda
 26a87c897fea9d1f8d7d73fdc6d1f09a *data/eye_norm.rda
 e05b9eac915b3c8d0d3ac6d22cd3c4d7 *data/yeast.rda
-1fda1597005106fb139b973189e15bca *man/EyeICRO.Rd
 abda64cd5c62fb59fb697891149f61b3 *man/GraphIRO.Rd
-748ea47a70b6f8f64eff29facc5021a2 *man/IROmiss-package.Rd
+112ed24b9fcb11ad4b69cbc4a84383cd *man/IROmiss-package.Rd
 027ec1bcde876aee3c5615339fe77d55 *man/RCDat.Rd
 b99d17af45d79a17943e73ce91206a27 *man/RCLM.Rd
 9c57cb25d5a4fd65e0fab008c3d0a04b *man/RegICRO.Rd
